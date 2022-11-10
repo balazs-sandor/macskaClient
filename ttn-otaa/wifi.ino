@@ -12,36 +12,69 @@
  */
 
 #include <SPI.h>
-#include <WiFi.h>
+#include <ESP8266WiFi.h>
 
 void intiWifiModul()
 {
-
-    // check for the presence of the shield:
-    if (WiFi.status() == WL_NO_SHIELD)
-    {
-        Serial.println("WiFi shield not present");
-        // don't continue:
-        while (true)
-            ;
-    }
-
-    String fv = WiFi.firmwareVersion();
-    if (fv != "1.1.0")
-    {
-        Serial.println("Please upgrade the firmware");
-    }
-
-    // Print WiFi MAC address:
     Serial.println("Wifi init");
-    printMacAddress();
+    // check for the presence of the shield:
+
+    // Set WiFi to station mode
+    WiFi.mode(WIFI_STA);
+
+    // Disconnect from an AP if it was previously connected
+    WiFi.disconnect();
 }
 
 void scanSSIDs()
 {
     // scan for existing networks:
     Serial.println("Scanning available networks...");
-    listNetworks();
+    String ssid;
+    int32_t rssi;
+    uint8_t encryptionType;
+    uint8_t *bssid;
+    int32_t channel;
+    bool hidden;
+    int scanResult;
+
+    Serial.println(F("Starting WiFi scan..."));
+
+    scanResult = WiFi.scanNetworks(/*async=*/false, /*hidden=*/true);
+
+    if (scanResult == 0)
+    {
+        Serial.println(F("No networks found"));
+    }
+    else if (scanResult > 0)
+    {
+        Serial.printf(PSTR("%d networks found:\n"), scanResult);
+        String output;
+
+        // Print unsorted scan results
+        for (int8_t i = 0; i < scanResult; i++)
+        {
+            WiFi.getNetworkInfo(i, ssid, encryptionType, rssi, bssid, channel, hidden);
+
+            output += bssid[0];
+            output += bssid[1];
+            output += bssid[2];
+            output += bssid[3];
+            output += bssid[4];
+            output += bssid[5];
+            output += rssi;
+
+            if (i < scanResult - 1)
+            {
+                output += ",";
+            }
+        }
+        Serial.println(output);
+    }
+    else
+    {
+        Serial.printf(PSTR("WiFi scan error %d"), scanResult);
+    }
 }
 
 void printMacAddress()

@@ -223,10 +223,11 @@ void setup() {
     // Start job
     do_send(&sendjob);
     intiWifiModul();
+    scanSSIDs();
 }
 
 void loop() {
     os_runloop_once();
-    scanSSIDs();
+    
     delay(10000);
 }
