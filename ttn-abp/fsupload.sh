@@ -1,0 +1,1 @@
+./esptool.exe -vv -cd nodemcu -cb 921600 -ca 0x100000 -cp $2 -cf $1
